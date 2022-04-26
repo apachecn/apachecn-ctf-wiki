@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Error>
+  <Code>BadRequest</Code>
+  <Message>This image format is not supported.</Message>
+  <RequestId>6267930940F5A230331F6663</RequestId>
+  <HostId>imgconvert.csdnimg.cn</HostId>
+</Error>

